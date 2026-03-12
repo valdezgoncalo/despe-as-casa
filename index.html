@@ -49,7 +49,7 @@
             letter-spacing: -1px;
         }
 
-        /* Dashboard de Resumo */
+        /* Dashboard */
         .dashboard {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -87,7 +87,6 @@
             color: white;
         }
 
-        /* Layout em Grelha */
         .main-grid {
             display: grid;
             grid-template-columns: 1fr 1.5fr;
@@ -110,7 +109,7 @@
             padding-bottom: 10px;
         }
 
-        /* Formulários e Inputs */
+        /* CORREÇÃO DE VISUALIZAÇÃO DOS INPUTS */
         .form-row {
             display: flex;
             flex-wrap: wrap;
@@ -121,7 +120,7 @@
 
         .form-group {
             flex: 1;
-            min-width: 140px;
+            min-width: 150px; /* Garante que os campos não fiquem minúsculos */
         }
 
         .form-group.small {
@@ -140,12 +139,15 @@
 
         input, select {
             width: 100%;
+            min-height: 45px; /* Altura mínima garantida */
             padding: 12px;
             border: 1px solid #e2e8f0;
             border-radius: 10px;
             font-size: 0.9rem;
             background: #f8fafc;
             color: var(--text-main);
+            display: block;
+            appearance: auto; /* Garante que a seta do seletor apareça em todos os browsers */
         }
 
         input:focus, select:focus {
@@ -173,20 +175,11 @@
             width: 100%;
         }
 
-        .btn-primary:hover {
-            filter: brightness(1.1);
-        }
-
         .btn-danger {
             background: #fff5f5;
             color: #f56565;
             font-size: 0.8rem;
             border: 1px solid #fed7d7;
-        }
-
-        .btn-danger:hover {
-            background: #f56565;
-            color: white;
         }
 
         .btn-outline {
@@ -196,7 +189,7 @@
             font-size: 0.8rem;
         }
 
-        /* Gestores de Listas (Configurações) */
+        /* Listas */
         .list-manager {
             max-height: 150px;
             overflow-y: auto;
@@ -215,7 +208,7 @@
             border-bottom: 1px solid #f1f5f9;
         }
 
-        /* Tabela de Registos */
+        /* Tabela */
         .table-container {
             background: white;
             border-radius: 20px;
@@ -235,7 +228,6 @@
             text-align: left;
             font-size: 0.75rem;
             color: var(--text-muted);
-            text-transform: uppercase;
         }
 
         td {
@@ -253,7 +245,6 @@
             color: #4338ca;
         }
 
-        /* Orçamentos Visuais */
         .budget-card {
             margin-bottom: 15px;
             padding: 12px;
@@ -275,7 +266,6 @@
             border-radius: 4px;
             background: var(--success);
             width: 0%;
-            transition: width 0.4s ease;
         }
 
         .progress-fill.over {
@@ -292,33 +282,22 @@
 <body>
 
 <div class="container">
-    <header>
-        <h1>WalletFlow 2026</h1>
-    </header>
+    <header><h1>WalletFlow 2026</h1></header>
 
     <div class="dashboard">
-        <div class="card" style="border-left: 5px solid #9b59b6;">
-            <h3 id="labelU1">Pessoa 1</h3>
-            <p id="valU1">0,00 €</p>
-        </div>
-        <div class="card" style="border-left: 5px solid var(--primary);">
-            <h3 id="labelU2">Pessoa 2</h3>
-            <p id="valU2">0,00 €</p>
-        </div>
-        <div class="card balance">
-            <h3 id="labelBalance">Acerto de Contas</h3>
-            <p id="valBalance">0,00 €</p>
-        </div>
+        <div class="card" style="border-left: 5px solid #9b59b6;"><h3 id="labelU1">Pessoa 1</h3><p id="valU1">0,00 €</p></div>
+        <div class="card" style="border-left: 5px solid var(--primary);"><h3 id="labelU2">Pessoa 2</h3><p id="valU2">0,00 €</p></div>
+        <div class="card balance"><h3 id="labelBalance">Acerto</h3><p id="valBalance">0,00 €</p></div>
     </div>
 
     <div class="section" style="display: flex; gap: 15px; flex-wrap: wrap; align-items: flex-end;">
         <div style="flex: 2; min-width: 200px;">
             <label>Procurar na Descrição</label>
-            <input type="text" id="filterSearch" placeholder="Ex: Jantar, Luz, Renda..." oninput="renderAll()">
+            <input type="text" id="filterSearch" placeholder="Ex: Jantar..." oninput="renderAll()">
         </div>
         <div style="flex: 1; min-width: 150px;">
             <label>Visualizar Mês</label>
-            <select id="filterMonth" onchange="renderAll()"></select>
+            <select id="filterMonth" onchange="renderAll()" style="background-color: #fff; border: 2px solid var(--primary);"></select>
         </div>
     </div>
 
@@ -327,24 +306,18 @@
             <div class="section">
                 <h2>⚙️ Configurações</h2>
                 <div class="form-row">
-                    <div class="form-group">
-                        <label>Nome 1</label>
-                        <input type="text" id="name1" onchange="saveConfig()">
-                    </div>
-                    <div class="form-group">
-                        <label>Nome 2</label>
-                        <input type="text" id="name2" onchange="saveConfig()">
-                    </div>
+                    <div class="form-group"><label>Nome 1</label><input type="text" id="name1" onchange="saveConfig()"></div>
+                    <div class="form-group"><label>Nome 2</label><input type="text" id="name2" onchange="saveConfig()"></div>
                 </div>
                 
-                <label>Categorias de Despesa</label>
+                <label>Categorias</label>
                 <div style="display:flex; gap:5px; margin-bottom: 5px;">
-                    <input type="text" id="newCat" placeholder="Nova categoria">
+                    <input type="text" id="newCat" placeholder="Nova cat.">
                     <button class="btn-primary" style="width:45px; margin:0;" onclick="addItem('categories', 'newCat')">+</button>
                 </div>
                 <div id="listCats" class="list-manager"></div>
 
-                <label style="margin-top:15px;">Gestão de Meses</label>
+                <label style="margin-top:15px;">Meses</label>
                 <div style="display:flex; gap:5px; margin-bottom: 5px;">
                     <input type="text" id="newMonth" placeholder="Novo mês">
                     <button class="btn-primary" style="width:45px; margin:0;" onclick="addItem('months', 'newMonth')">+</button>
@@ -353,8 +326,8 @@
             </div>
 
             <div class="section">
-                <h2>🎯 Definição de Metas</h2>
-                <div id="budgetInputs" style="margin-bottom: 20px;"></div>
+                <h2>🎯 Metas Mensais</h2>
+                <div id="budgetInputs"></div>
                 <hr style="border:0; border-top:1px solid #eee; margin: 20px 0;">
                 <div id="budgetStatus"></div>
             </div>
@@ -365,88 +338,53 @@
                 <h2>📝 Novo Registo</h2>
                 <form id="financeForm">
                     <div class="form-row">
-                        <div class="form-group small">
-                            <label>Dia</label>
-                            <input type="number" id="fDay" required min="1" max="31">
-                        </div>
-                        <div class="form-group">
-                            <label>Mês</label>
-                            <select id="fMonth"></select>
-                        </div>
-                        <div class="form-group">
-                            <label>Categoria</label>
-                            <select id="fCat"></select>
-                        </div>
+                        <div class="form-group small"><label>Dia</label><input type="number" id="fDay" required min="1" max="31"></div>
+                        <div class="form-group"><label>Mês</label><select id="fMonth" required></select></div>
+                        <div class="form-group"><label>Categoria</label><select id="fCat" required></select></div>
                     </div>
-                    
                     <div class="form-row">
-                        <div class="form-group">
-                            <label>Descrição da Despesa</label>
-                            <input type="text" id="fDesc" placeholder="Onde foi gasto o dinheiro?" required>
-                        </div>
+                        <div class="form-group"><label>Descrição</label><input type="text" id="fDesc" placeholder="Descrição" required></div>
                     </div>
-
                     <div class="form-row">
-                        <div class="form-group">
-                            <label>Valor (€)</label>
-                            <input type="number" step="0.01" id="fAmount" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Quem Pagou?</label>
-                            <select id="fPayer"></select>
-                        </div>
+                        <div class="form-group"><label>Valor (€)</label><input type="number" step="0.01" id="fAmount" required></div>
+                        <div class="form-group"><label>Quem Pagou?</label><select id="fPayer" required></select></div>
                     </div>
-                    
                     <button type="submit" class="btn-primary">Guardar Despesa</button>
                 </form>
 
                 <div style="margin-top: 25px; display: flex; gap: 10px; flex-wrap: wrap;">
-                    <button class="btn-outline" onclick="undoLast()">↩️ Anular Último</button>
-                    <button class="btn-outline" onclick="downloadCSV()">📥 Exportar CSV</button>
-                    <button class="btn-danger" style="margin-left: auto;" onclick="hardReset()">🧨 Limpar Tudo</button>
+                    <button class="btn-outline" onclick="undoLast()">↩️ Anular</button>
+                    <button class="btn-outline" onclick="downloadCSV()">📥 Exportar</button>
+                    <button class="btn-danger" style="margin-left: auto;" onclick="hardReset()">🧨 Reset</button>
                 </div>
             </div>
 
             <div class="section">
-                <h2>📊 Gastos por Categoria</h2>
-                <div style="height: 280px;">
-                    <canvas id="expenseChart"></canvas>
-                </div>
+                <h2>📊 Distribuição</h2>
+                <div style="height: 250px;"><canvas id="expenseChart"></canvas></div>
             </div>
         </div>
     </div>
 
     <div class="table-container">
         <table>
-            <thead>
-                <tr>
-                    <th>Data</th>
-                    <th>Categoria</th>
-                    <th>Descrição</th>
-                    <th>Valor</th>
-                    <th>Pago por</th>
-                    <th>Ações</th>
-                </tr>
-            </thead>
+            <thead><tr><th>Data</th><th>Cat.</th><th>Descrição</th><th>Valor</th><th>Quem</th><th>Ação</th></tr></thead>
             <tbody id="tableBody"></tbody>
         </table>
     </div>
 </div>
 
 <script>
-    // Inicialização de Dados
     let data = JSON.parse(localStorage.getItem('fin_data')) || [];
     let config = JSON.parse(localStorage.getItem('fin_config')) || {
-        name1: "Cátia",
-        name2: "Gonçalo",
-        categories: ["Casa", "Supermercado", "Lazer", "Transporte"],
+        name1: "Cátia", name2: "Gonçalo",
+        categories: ["Casa", "Supermercado", "Lazer"],
         months: ["Janeiro", "Fevereiro", "Março"],
         budgets: {}
     };
 
     let myChart = null;
 
-    // Função para salvar configurações de nomes e preferências
     function saveConfig() {
         config.name1 = document.getElementById('name1').value || "Pessoa 1";
         config.name2 = document.getElementById('name2').value || "Pessoa 2";
@@ -454,14 +392,12 @@
         renderAll();
     }
 
-    // Atualiza o valor do orçamento de uma categoria
     function updateBudget(cat, val) {
         config.budgets[cat] = parseFloat(val) || 0;
         localStorage.setItem('fin_config', JSON.stringify(config));
         renderAll();
     }
 
-    // Adiciona itens a listas (categorias ou meses)
     function addItem(type, inputId) {
         const val = document.getElementById(inputId).value.trim();
         if(val && !config[type].includes(val)) {
@@ -471,226 +407,106 @@
         }
     }
 
-    // Remove itens de listas
     function removeItem(type, index) {
-        const item = config[type][index];
-        if(confirm(`Deseja remover "${item}"?`)) {
+        if(confirm(`Remover item?`)) {
             config[type].splice(index, 1);
-            if(type === 'categories') delete config.budgets[item];
             saveConfig();
         }
     }
 
-    // Reset total da aplicação
     function hardReset() {
-        if(confirm("ATENÇÃO: Isto irá apagar TODOS os seus dados permanentemente.")) {
-            if(confirm("Tem mesmo a certeza?")) {
-                localStorage.clear();
-                location.reload();
-            }
-        }
+        if(confirm("Apagar tudo?")) { localStorage.clear(); location.reload(); }
     }
 
-    // Funções de manipulação de registos
-    function undoLast() {
-        if(data.length > 0) {
-            data.pop();
-            saveData();
-        }
-    }
+    function undoLast() { if(data.length > 0) { data.pop(); saveData(); } }
+    function deleteRecord(index) { data.splice(index, 1); saveData(); }
+    function saveData() { localStorage.setItem('fin_data', JSON.stringify(data)); renderAll(); }
 
-    function deleteRecord(index) {
-        data.splice(index, 1);
-        saveData();
-    }
-
-    function saveData() {
-        localStorage.setItem('fin_data', JSON.stringify(data));
-        renderAll();
-    }
-
-    // Função Principal de Renderização (Desenha tudo no ecrã)
     function renderAll() {
-        const selMonth = document.getElementById('filterMonth').value || 'all';
+        // CORREÇÃO: Guardar o valor atual do filtro antes de limpar
+        const filterEl = document.getElementById('filterMonth');
+        const selectedFilter = filterEl.value || 'all';
         const search = document.getElementById('filterSearch').value.toLowerCase();
 
-        // Atualizar Nomes na UI
         document.getElementById('name1').value = config.name1;
         document.getElementById('name2').value = config.name2;
         document.getElementById('labelU1').innerText = config.name1;
         document.getElementById('labelU2').innerText = config.name2;
 
-        // Renderizar listas de configuração
-        document.getElementById('listCats').innerHTML = config.categories.map((c, i) => `
-            <div class="list-row">
-                <span class="badge">${c}</span>
-                <button class="btn-danger" style="padding:2px 5px" onclick="removeItem('categories', ${i})">×</button>
-            </div>
-        `).join('');
+        document.getElementById('listCats').innerHTML = config.categories.map((c, i) => `<div class="list-row"><span class="badge">${c}</span><button class="btn-danger" style="padding:2px 5px" onclick="removeItem('categories', ${i})">×</button></div>`).join('');
+        document.getElementById('listMonths').innerHTML = config.months.map((m, i) => `<div class="list-row"><span>${m}</span><button class="btn-danger" style="padding:2px 5px" onclick="removeItem('months', ${i})">×</button></div>`).join('');
+        
+        document.getElementById('budgetInputs').innerHTML = config.categories.map(c => `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;"><small style="font-weight:600">${c}</small><input type="number" value="${config.budgets[c] || 0}" onchange="updateBudget('${c}', this.value)" style="width:80px; padding:5px; min-height:30px;"></div>`).join('');
 
-        document.getElementById('listMonths').innerHTML = config.months.map((m, i) => `
-            <div class="list-row">
-                <span>${m}</span>
-                <button class="btn-danger" style="padding:2px 5px" onclick="removeItem('months', ${i})">×</button>
-            </div>
-        `).join('');
-
-        // Renderizar inputs de orçamentos
-        document.getElementById('budgetInputs').innerHTML = config.categories.map(c => `
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                <small style="font-weight:600">${c}</small>
-                <input type="number" value="${config.budgets[c] || 0}" onchange="updateBudget('${c}', this.value)" style="width:85px; padding:5px;">
-            </div>
-        `).join('');
-
-        // Atualizar Dropdowns (Seletores)
+        // ATUALIZAÇÃO DOS SELETORES
         const mOpts = '<option value="all">Todos os Meses</option>' + config.months.map(m => `<option value="${m}">${m}</option>`).join('');
-        const currentFilter = document.getElementById('filterMonth').value;
-        document.getElementById('filterMonth').innerHTML = mOpts;
-        document.getElementById('filterMonth').value = currentFilter || 'all';
+        filterEl.innerHTML = mOpts;
+        filterEl.value = selectedFilter; // Repõe o valor para não ficar em branco
 
         document.getElementById('fMonth').innerHTML = config.months.map(m => `<option value="${m}">${m}</option>`).join('');
         document.getElementById('fCat').innerHTML = config.categories.map(c => `<option value="${c}">${c}</option>`).join('');
-        document.getElementById('fPayer').innerHTML = `
-            <option value="p1">${config.name1}</option>
-            <option value="p2">${config.name2}</option>
-        `;
+        document.getElementById('fPayer').innerHTML = `<option value="p1">${config.name1}</option><option value="p2">${config.name2}</option>`;
 
-        // Processamento de Dados (Tabela e Totais)
         let t1 = 0, t2 = 0;
         const catTotals = {};
         const tbody = document.getElementById('tableBody');
         tbody.innerHTML = '';
 
         data.forEach((r, i) => {
-            const matchesMonth = (selMonth === 'all' || r.month === selMonth);
-            const matchesSearch = r.description.toLowerCase().includes(search);
-
-            if(matchesMonth && matchesSearch) {
+            if((selectedFilter === 'all' || r.month === selectedFilter) && r.description.toLowerCase().includes(search)) {
                 const amt = parseFloat(r.amount);
                 if(r.payer === 'p1') t1 += amt; else t2 += amt;
                 catTotals[r.category] = (catTotals[r.category] || 0) + amt;
-
-                tbody.insertAdjacentHTML('afterbegin', `
-                    <tr>
-                        <td>${r.day} ${r.month}</td>
-                        <td><span class="badge">${r.category}</span></td>
-                        <td>${r.description}</td>
-                        <td><strong>${amt.toFixed(2)}€</strong></td>
-                        <td>${r.payer==='p1'?config.name1:config.name2}</td>
-                        <td><button class="btn-danger" onclick="deleteRecord(${i})">🗑️</button></td>
-                    </tr>
-                `);
+                tbody.insertAdjacentHTML('afterbegin', `<tr><td>${r.day} ${r.month}</td><td><span class="badge">${r.category}</span></td><td>${r.description}</td><td><strong>${amt.toFixed(2)}€</strong></td><td>${r.payer==='p1'?config.name1:config.name2}</td><td><button class="btn-danger" onclick="deleteRecord(${i})">🗑️</button></td></tr>`);
             }
         });
 
-        // Atualizar Cards de Totais
         document.getElementById('valU1').innerText = t1.toFixed(2) + ' €';
         document.getElementById('valU2').innerText = t2.toFixed(2) + ' €';
-        
         const bal = (t1 - t2) / 2;
         const balEl = document.getElementById('valBalance');
-        if(bal > 0) {
-            balEl.innerHTML = `<small>${config.name2} deve a ${config.name1}</small><br>${bal.toFixed(2)} €`;
-        } else if(bal < 0) {
-            balEl.innerHTML = `<small>${config.name1} deve a ${config.name2}</small><br>${Math.abs(bal).toFixed(2)} €`;
-        } else {
-            balEl.innerText = "Contas Certas";
-        }
+        balEl.innerHTML = bal > 0 ? `<small>${config.name2} deve</small><br>${bal.toFixed(2)} €` : (bal < 0 ? `<small>${config.name1} deve</small><br>${Math.abs(bal).toFixed(2)} €` : "0,00 €");
 
-        // Renderizar Barras de Orçamento
         let bHtml = '';
         config.categories.forEach(c => {
             const limit = config.budgets[c] || 0;
             if(limit > 0) {
                 const spent = catTotals[c] || 0;
                 const perc = Math.min((spent/limit)*100, 100);
-                bHtml += `
-                    <div class="budget-card">
-                        <div style="display:flex; justify-content:space-between; font-size:0.75rem; font-weight:bold;">
-                            <span>${c}</span>
-                            <span>${spent.toFixed(0)}€ / ${limit}€</span>
-                        </div>
-                        <div class="progress-bg">
-                            <div class="progress-fill ${spent > limit ? 'over' : ''}" style="width:${perc}%"></div>
-                        </div>
-                    </div>`;
+                bHtml += `<div class="budget-card"><div style="display:flex; justify-content:space-between; font-size:0.75rem; font-weight:bold;"><span>${c}</span><span>${spent.toFixed(0)}€/${limit}€</span></div><div class="progress-bg"><div class="progress-fill ${spent > limit ? 'over' : ''}" style="width:${perc}%"></div></div></div>`;
             }
         });
-        document.getElementById('budgetStatus').innerHTML = bHtml || '<p style="font-size:0.8rem; color:#999; text-align:center;">Defina metas nas configurações para ver o progresso.</p>';
-
+        document.getElementById('budgetStatus').innerHTML = bHtml;
         updateChart(catTotals);
     }
 
-    // Atualização do Gráfico Chart.js
     function updateChart(totals) {
         const ctx = document.getElementById('expenseChart').getContext('2d');
         if(myChart) myChart.destroy();
-        
         const labels = Object.keys(totals);
         if(labels.length === 0) return;
-
-        myChart = new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: labels,
-                datasets: [{
-                    data: Object.values(totals),
-                    backgroundColor: ['#4361ee', '#7209b7', '#4cc9f0', '#f72585', '#9b59b6', '#3f37c9', '#4895ef'],
-                    borderWidth: 0
-                }]
-            },
-            options: {
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: { boxWidth: 12, font: { size: 11 }, usePointStyle: true }
-                    }
-                }
-            }
-        });
+        myChart = new Chart(ctx, { type: 'doughnut', data: { labels: labels, datasets: [{ data: Object.values(totals), backgroundColor: ['#4361ee', '#7209b7', '#4cc9f0', '#f72585', '#9b59b6'], borderWidth: 0 }] }, options: { maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } } } } });
     }
 
-    // Exportação para CSV
     function downloadCSV() {
-        let csv = "\uFEFFData;Categoria;Descricao;Valor;Pago Por\n";
-        data.forEach(r => {
-            csv += `${r.day}/${r.month};${r.category};${r.description};${r.amount};${r.payer==='p1'?config.name1:config.name2}\n`;
-        });
-        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement("a");
-        link.href = URL.createObjectURL(blob);
-        link.download = "contas_familia_2026.csv";
-        link.click();
+        let csv = "\uFEFFData;Categoria;Descricao;Valor;Quem\n";
+        data.forEach(r => csv += `${r.day}/${r.month};${r.category};${r.description};${r.amount};${r.payer==='p1'?config.name1:config.name2}\n`);
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+        a.download = "contas.csv";
+        a.click();
     }
 
-    // Submissão do Formulário
     document.getElementById('financeForm').onsubmit = (e) => {
         e.preventDefault();
-        
-        const newRecord = {
-            day: document.getElementById('fDay').value,
-            month: document.getElementById('fMonth').value,
-            category: document.getElementById('fCat').value,
-            description: document.getElementById('fDesc').value,
-            amount: document.getElementById('fAmount').value,
-            payer: document.getElementById('fPayer').value
-        };
-
-        data.push(newRecord);
+        data.push({ day: document.getElementById('fDay').value, month: document.getElementById('fMonth').value, category: document.getElementById('fCat').value, description: document.getElementById('fDesc').value, amount: document.getElementById('fAmount').value, payer: document.getElementById('fPayer').value });
         saveData();
-
-        // Limpar formulário mantendo o mês para facilitar o próximo registo
         const currentMonth = document.getElementById('fMonth').value;
         e.target.reset();
         document.getElementById('fMonth').value = currentMonth;
-        document.getElementById('fDay').focus();
     };
 
-    // Renderização inicial
     renderAll();
 </script>
-
 </body>
 </html>
