@@ -87,6 +87,10 @@
             color: white;
         }
 
+        .card.highlight {
+            border-left: 5px solid var(--success);
+        }
+
         .main-grid {
             display: grid;
             grid-template-columns: 1fr 1.5fr;
@@ -216,6 +220,34 @@
             box-shadow: 0 10px 20px rgba(0,0,0,0.05);
         }
 
+        .helper-text {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 8px;
+        }
+
+        .status-message {
+            margin-top: 12px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            display: none;
+        }
+
+        .status-message.success {
+            background: #edfdf6;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+            display: block;
+        }
+
+        .status-message.error {
+            background: #fff1f2;
+            color: #9f1239;
+            border: 1px solid #fecdd3;
+            display: block;
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
@@ -287,6 +319,7 @@
     <div class="dashboard">
         <div class="card" style="border-left: 5px solid #9b59b6;"><h3 id="labelU1">Pessoa 1</h3><p id="valU1">0,00 €</p></div>
         <div class="card" style="border-left: 5px solid var(--primary);"><h3 id="labelU2">Pessoa 2</h3><p id="valU2">0,00 €</p></div>
+        <div class="card highlight"><h3>Total de Despesas</h3><p id="valTotal">0,00 €</p></div>
         <div class="card balance"><h3 id="labelBalance">Acerto</h3><p id="valBalance">0,00 €</p></div>
     </div>
 
@@ -338,7 +371,7 @@
                 <h2>📝 Novo Registo</h2>
                 <form id="financeForm">
                     <div class="form-row">
-                        <div class="form-group small"><label>Dia</label><input type="number" id="fDay" required min="1" max="31"></div>
+                        <div class="form-group small"><label>Dia</label><input type="number" id="fDay" required min="1" max="31" placeholder="1-31"></div>
                         <div class="form-group"><label>Mês</label><select id="fMonth" required></select></div>
                         <div class="form-group"><label>Categoria</label><select id="fCat" required></select></div>
                     </div>
@@ -346,10 +379,12 @@
                         <div class="form-group"><label>Descrição</label><input type="text" id="fDesc" placeholder="Descrição" required></div>
                     </div>
                     <div class="form-row">
-                        <div class="form-group"><label>Valor (€)</label><input type="number" step="0.01" id="fAmount" required></div>
+                        <div class="form-group"><label>Valor (€)</label><input type="number" step="0.01" min="0.01" id="fAmount" required></div>
                         <div class="form-group"><label>Quem Pagou?</label><select id="fPayer" required></select></div>
                     </div>
                     <button type="submit" class="btn-primary">Guardar Despesa</button>
+                    <p class="helper-text">Sugestão: use descrições curtas para facilitar a pesquisa.</p>
+                    <div id="statusMessage" class="status-message" aria-live="polite"></div>
                 </form>
 
                 <div style="margin-top: 25px; display: flex; gap: 10px; flex-wrap: wrap;">
@@ -385,6 +420,27 @@
 
     let myChart = null;
 
+    function escapeHtml(value) {
+        return String(value)
+            .replaceAll('&', '&amp;')
+            .replaceAll('<', '&lt;')
+            .replaceAll('>', '&gt;')
+            .replaceAll('"', '&quot;')
+            .replaceAll("'", '&#39;');
+    }
+
+    function setStatus(message, type = 'success') {
+        const el = document.getElementById('statusMessage');
+        el.className = `status-message ${type}`;
+        el.textContent = message;
+    }
+
+    function clearStatus() {
+        const el = document.getElementById('statusMessage');
+        el.className = 'status-message';
+        el.textContent = '';
+    }
+
     function saveConfig() {
         config.name1 = document.getElementById('name1').value || "Pessoa 1";
         config.name2 = document.getElementById('name2').value || "Pessoa 2";
@@ -404,6 +460,8 @@
             config[type].push(val);
             document.getElementById(inputId).value = '';
             saveConfig();
+        } else if (config[type].includes(val)) {
+            setStatus('Este item já existe na lista.', 'error');
         }
     }
 
@@ -433,18 +491,18 @@
         document.getElementById('labelU1').innerText = config.name1;
         document.getElementById('labelU2').innerText = config.name2;
 
-        document.getElementById('listCats').innerHTML = config.categories.map((c, i) => `<div class="list-row"><span class="badge">${c}</span><button class="btn-danger" style="padding:2px 5px" onclick="removeItem('categories', ${i})">×</button></div>`).join('');
-        document.getElementById('listMonths').innerHTML = config.months.map((m, i) => `<div class="list-row"><span>${m}</span><button class="btn-danger" style="padding:2px 5px" onclick="removeItem('months', ${i})">×</button></div>`).join('');
+        document.getElementById('listCats').innerHTML = config.categories.map((c, i) => `<div class="list-row"><span class="badge">${escapeHtml(c)}</span><button class="btn-danger" style="padding:2px 5px" onclick="removeItem('categories', ${i})">×</button></div>`).join('');
+        document.getElementById('listMonths').innerHTML = config.months.map((m, i) => `<div class="list-row"><span>${escapeHtml(m)}</span><button class="btn-danger" style="padding:2px 5px" onclick="removeItem('months', ${i})">×</button></div>`).join('');
         
         document.getElementById('budgetInputs').innerHTML = config.categories.map(c => `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;"><small style="font-weight:600">${c}</small><input type="number" value="${config.budgets[c] || 0}" onchange="updateBudget('${c}', this.value)" style="width:80px; padding:5px; min-height:30px;"></div>`).join('');
 
         // ATUALIZAÇÃO DOS SELETORES
-        const mOpts = '<option value="all">Todos os Meses</option>' + config.months.map(m => `<option value="${m}">${m}</option>`).join('');
+        const mOpts = '<option value="all">Todos os Meses</option>' + config.months.map(m => `<option value="${escapeHtml(m)}">${escapeHtml(m)}</option>`).join('');
         filterEl.innerHTML = mOpts;
-        filterEl.value = selectedFilter; // Repõe o valor para não ficar em branco
+        filterEl.value = config.months.includes(selectedFilter) || selectedFilter === 'all' ? selectedFilter : 'all';
 
-        document.getElementById('fMonth').innerHTML = config.months.map(m => `<option value="${m}">${m}</option>`).join('');
-        document.getElementById('fCat').innerHTML = config.categories.map(c => `<option value="${c}">${c}</option>`).join('');
+        document.getElementById('fMonth').innerHTML = config.months.map(m => `<option value="${escapeHtml(m)}">${escapeHtml(m)}</option>`).join('');
+        document.getElementById('fCat').innerHTML = config.categories.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
         document.getElementById('fPayer').innerHTML = `<option value="p1">${config.name1}</option><option value="p2">${config.name2}</option>`;
 
         let t1 = 0, t2 = 0;
@@ -457,12 +515,17 @@
                 const amt = parseFloat(r.amount);
                 if(r.payer === 'p1') t1 += amt; else t2 += amt;
                 catTotals[r.category] = (catTotals[r.category] || 0) + amt;
-                tbody.insertAdjacentHTML('afterbegin', `<tr><td>${r.day} ${r.month}</td><td><span class="badge">${r.category}</span></td><td>${r.description}</td><td><strong>${amt.toFixed(2)}€</strong></td><td>${r.payer==='p1'?config.name1:config.name2}</td><td><button class="btn-danger" onclick="deleteRecord(${i})">🗑️</button></td></tr>`);
+                tbody.insertAdjacentHTML('afterbegin', `<tr><td>${escapeHtml(r.day)} ${escapeHtml(r.month)}</td><td><span class="badge">${escapeHtml(r.category)}</span></td><td>${escapeHtml(r.description)}</td><td><strong>${amt.toFixed(2)}€</strong></td><td>${r.payer==='p1'?escapeHtml(config.name1):escapeHtml(config.name2)}</td><td><button class="btn-danger" onclick="deleteRecord(${i})">🗑️</button></td></tr>`);
             }
         });
 
+        if (!tbody.innerHTML) {
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#8d99ae;">Sem registos para os filtros atuais.</td></tr>';
+        }
+
         document.getElementById('valU1').innerText = t1.toFixed(2) + ' €';
         document.getElementById('valU2').innerText = t2.toFixed(2) + ' €';
+        document.getElementById('valTotal').innerText = (t1 + t2).toFixed(2) + ' €';
         const bal = (t1 - t2) / 2;
         const balEl = document.getElementById('valBalance');
         balEl.innerHTML = bal > 0 ? `<small>${config.name2} deve</small><br>${bal.toFixed(2)} €` : (bal < 0 ? `<small>${config.name1} deve</small><br>${Math.abs(bal).toFixed(2)} €` : "0,00 €");
@@ -484,7 +547,10 @@
         const ctx = document.getElementById('expenseChart').getContext('2d');
         if(myChart) myChart.destroy();
         const labels = Object.keys(totals);
-        if(labels.length === 0) return;
+        if(labels.length === 0) {
+            myChart = null;
+            return;
+        }
         myChart = new Chart(ctx, { type: 'doughnut', data: { labels: labels, datasets: [{ data: Object.values(totals), backgroundColor: ['#4361ee', '#7209b7', '#4cc9f0', '#f72585', '#9b59b6'], borderWidth: 0 }] }, options: { maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } } } } });
     }
 
@@ -499,12 +565,36 @@
 
     document.getElementById('financeForm').onsubmit = (e) => {
         e.preventDefault();
-        data.push({ day: document.getElementById('fDay').value, month: document.getElementById('fMonth').value, category: document.getElementById('fCat').value, description: document.getElementById('fDesc').value, amount: document.getElementById('fAmount').value, payer: document.getElementById('fPayer').value });
+
+        const day = parseInt(document.getElementById('fDay').value, 10);
+        const amount = parseFloat(document.getElementById('fAmount').value);
+        const description = document.getElementById('fDesc').value.trim();
+        const month = document.getElementById('fMonth').value;
+        const category = document.getElementById('fCat').value;
+        const payer = document.getElementById('fPayer').value;
+
+        if (Number.isNaN(day) || day < 1 || day > 31) {
+            setStatus('O dia deve estar entre 1 e 31.', 'error');
+            return;
+        }
+        if (Number.isNaN(amount) || amount <= 0) {
+            setStatus('O valor deve ser maior do que 0.', 'error');
+            return;
+        }
+        if (description.length < 3) {
+            setStatus('A descrição deve ter pelo menos 3 caracteres.', 'error');
+            return;
+        }
+
+        data.push({ day, month, category, description, amount, payer });
         saveData();
+        setStatus('Despesa guardada com sucesso.');
         const currentMonth = document.getElementById('fMonth').value;
         e.target.reset();
         document.getElementById('fMonth').value = currentMonth;
     };
+
+    document.getElementById('filterSearch').addEventListener('input', clearStatus);
 
     renderAll();
 </script>
