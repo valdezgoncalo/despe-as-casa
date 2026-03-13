@@ -377,6 +377,35 @@
     .action-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; align-items: center; }
     .action-bar .btn-danger-soft { margin-left: auto; }
 
+    /* ── CALENDÁRIO ── */
+    .cal-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 14px; }
+    .cal-stat { background: var(--surface-2); border-radius: var(--radius-sm); padding: 10px 12px; border: 1.5px solid var(--border); }
+    .cal-stat .cs-lbl { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-2); margin-bottom: 3px; }
+    .cal-stat .cs-val { font-family: 'DM Mono', monospace; font-size: 1rem; font-weight: 500; }
+    .cal-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+    .cal-nav-btn { width: 30px; height: 30px; border-radius: 8px; border: 1.5px solid var(--border-2); background: var(--surface); cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; color: var(--text); }
+    .cal-nav-btn:hover { border-color: var(--primary); color: var(--primary); }
+    .cal-month-lbl { font-size: 0.9rem; font-weight: 600; }
+    .cal-weekdays { display: grid; grid-template-columns: repeat(7,1fr); gap: 3px; margin-bottom: 3px; }
+    .cal-wd { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-3); text-align: center; padding: 3px 0; }
+    .cal-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 3px; }
+    .cal-day { border-radius: 8px; padding: 5px 4px 4px; min-height: 48px; cursor: pointer; border: 1.5px solid transparent; transition: border-color 0.15s; }
+    .cal-day:hover { border-color: var(--primary); }
+    .cal-day.empty { cursor: default; background: transparent !important; }
+    .cal-day.empty:hover { border-color: transparent; }
+    .cal-day.today { border-color: var(--primary) !important; }
+    .cal-day .cdn { font-size: 0.7rem; font-weight: 600; margin-bottom: 2px; }
+    .cal-day .cdots { display: flex; flex-wrap: wrap; gap: 2px; margin-top: 1px; }
+    .cal-day .cdot { width: 5px; height: 5px; border-radius: 50%; }
+    .cal-day .camt { font-size: 0.65rem; font-weight: 600; margin-top: 2px; }
+    .cal-detail { margin-top: 12px; background: var(--surface-2); border-radius: var(--radius-sm); padding: 12px; border: 1.5px solid var(--border); min-height: 52px; }
+    .cal-detail-title { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-2); margin-bottom: 8px; }
+    .cal-det-row { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; border-bottom: 1px solid var(--border); font-size: 0.82rem; }
+    .cal-det-row:last-child { border-bottom: none; }
+    .cal-legend { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+    .cal-leg { display: flex; align-items: center; gap: 4px; font-size: 0.68rem; color: var(--text-2); }
+    .cal-leg-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+
     @media (max-width: 900px) {
       .main-grid { grid-template-columns: 1fr; }
       .chart-row { grid-template-columns: 1fr; }
@@ -541,12 +570,34 @@
         <div class="tabs">
           <button class="tab active" onclick="switchTab(this,'tabDist')">Distribuição</button>
           <button class="tab" onclick="switchTab(this,'tabEvo')">Evolução</button>
+          <button class="tab" onclick="switchTab(this,'tabCal')">Calendário</button>
         </div>
         <div id="tabDist" class="tab-panel active">
           <div class="chart-box"><canvas id="chartDist"></canvas></div>
         </div>
         <div id="tabEvo" class="tab-panel">
           <div class="chart-box"><canvas id="chartEvo"></canvas></div>
+        </div>
+        <div id="tabCal" class="tab-panel">
+          <div class="cal-stats">
+            <div class="cal-stat"><div class="cs-lbl">Total do mês</div><div class="cs-val" id="calTotal">—</div></div>
+            <div class="cal-stat"><div class="cs-lbl">Dias ativos</div><div class="cs-val" id="calDays">—</div></div>
+            <div class="cal-stat"><div class="cs-lbl">Dia mais caro</div><div class="cs-val" id="calPeak">—</div></div>
+          </div>
+          <div class="cal-nav">
+            <button class="cal-nav-btn" onclick="calChangeMonth(-1)">&#8249;</button>
+            <span class="cal-month-lbl" id="calMonthLbl"></span>
+            <button class="cal-nav-btn" onclick="calChangeMonth(1)">&#8250;</button>
+          </div>
+          <div class="cal-weekdays">
+            <div class="cal-wd">Seg</div><div class="cal-wd">Ter</div><div class="cal-wd">Qua</div>
+            <div class="cal-wd">Qui</div><div class="cal-wd">Sex</div><div class="cal-wd">Sáb</div><div class="cal-wd">Dom</div>
+          </div>
+          <div class="cal-grid" id="calGrid"></div>
+          <div class="cal-detail" id="calDetail">
+            <div class="cal-detail-title">Clica num dia para ver as despesas</div>
+          </div>
+          <div class="cal-legend" id="calLegend"></div>
         </div>
       </div>
 
@@ -649,6 +700,7 @@ function switchTab(btn, panelId) {
   btn.classList.add('active');
   document.getElementById(panelId).classList.add('active');
   if (panelId === 'tabEvo') renderEvoChart();
+  if (panelId === 'tabCal') renderCalendar();
 }
 
 // ── SORT ──────────────────────────────────────────────────────────────────
@@ -1058,6 +1110,145 @@ function renderEvoChart(monthTotals, colors, palette) {
       }
     }
   });
+}
+
+// ── CALENDÁRIO ────────────────────────────────────────────────────────────
+const MONTHS_PT = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+const DAYS_IN_MONTH_CAL = [31,28,31,30,31,30,31,31,30,31,30,31];
+
+let calYear = new Date().getFullYear();
+let calMonth = new Date().getMonth();
+
+function calChangeMonth(d) {
+  calMonth += d;
+  if (calMonth > 11) { calMonth = 0; calYear++; }
+  if (calMonth < 0)  { calMonth = 11; calYear--; }
+  renderCalendar();
+}
+
+function getCatColor(cat) {
+  const palette = {
+    'Casa':         { dot:'#7F77DD', bg:'#EEEDFE', text:'#3C3489' },
+    'Supermercado': { dot:'#1D9E75', bg:'#E1F5EE', text:'#085041' },
+    'Lazer':        { dot:'#D85A30', bg:'#FAECE7', text:'#712B13' },
+    'Transporte':   { dot:'#BA7517', bg:'#FAEEDA', text:'#633806' },
+    'Saúde':        { dot:'#D4537E', bg:'#FBEAF0', text:'#72243E' },
+    'Alimentação':  { dot:'#1D9E75', bg:'#E1F5EE', text:'#085041' },
+  };
+  if (palette[cat]) return palette[cat];
+  const colors = ['#5B4FE8','#10B981','#F59E0B','#EF4444','#8B5CF6','#06B6D4','#F97316','#EC4899'];
+  let hash = 0;
+  for (let c of cat) hash = (hash * 31 + c.charCodeAt(0)) & 0xffffffff;
+  const col = colors[Math.abs(hash) % colors.length];
+  return { dot: col, bg: col + '22', text: col };
+}
+
+function heatBg(pct) {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  if (pct === 0) return isDark ? '#211F38' : '#F9F8FF';
+  if (pct < 0.25) return isDark ? '#2A2550' : '#EEEDFE';
+  if (pct < 0.5)  return isDark ? '#3B3280' : '#CECBF6';
+  if (pct < 0.75) return isDark ? '#534AB7' : '#AFA9EC';
+  return isDark ? '#7B72F0' : '#7F77DD';
+}
+function heatText(pct) {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  if (pct >= 0.5) return '#fff';
+  return isDark ? '#C8C6F8' : '#3C3489';
+}
+
+function renderCalendar() {
+  const monthName = MONTHS_PT[calMonth];
+  document.getElementById('calMonthLbl').textContent = monthName + ' ' + calYear;
+
+  const monthData = appData.filter(r => r.month === monthName);
+  const dayTotals = {};
+  const dayItems  = {};
+  monthData.forEach(r => {
+    const d = Number(r.day);
+    dayTotals[d] = (dayTotals[d] || 0) + parseFloat(r.amount);
+    if (!dayItems[d]) dayItems[d] = [];
+    dayItems[d].push(r);
+  });
+
+  const totalAmt   = Object.values(dayTotals).reduce((a,b) => a+b, 0);
+  const activeDays = Object.keys(dayTotals).length;
+  const peakEntry  = Object.entries(dayTotals).sort((a,b) => b[1]-a[1])[0];
+
+  document.getElementById('calTotal').textContent = totalAmt.toFixed(2) + ' €';
+  document.getElementById('calDays').textContent  = activeDays;
+  document.getElementById('calPeak').textContent  = peakEntry ? 'dia ' + peakEntry[0] : '—';
+
+  const maxAmt = Math.max(...Object.values(dayTotals), 1);
+  const firstDow = new Date(calYear, calMonth, 1).getDay();
+  const startOffset = firstDow === 0 ? 6 : firstDow - 1;
+  const daysInM = DAYS_IN_MONTH_CAL[calMonth];
+  const today = new Date();
+  const isCurrentMonth = today.getFullYear() === calYear && today.getMonth() === calMonth;
+
+  const grid = document.getElementById('calGrid');
+  grid.innerHTML = '';
+
+  for (let i = 0; i < startOffset; i++) {
+    const el = document.createElement('div');
+    el.className = 'cal-day empty';
+    grid.appendChild(el);
+  }
+
+  for (let d = 1; d <= daysInM; d++) {
+    const amt   = dayTotals[d] || 0;
+    const pct   = amt / maxAmt;
+    const items = dayItems[d] || [];
+    const el    = document.createElement('div');
+    el.className = 'cal-day' + (isCurrentMonth && today.getDate() === d ? ' today' : '');
+    el.style.background = heatBg(pct);
+
+    const dots = items.slice(0,5).map(r => {
+      const c = getCatColor(r.category);
+      return `<div class="cdot" style="background:${c.dot}"></div>`;
+    }).join('');
+
+    el.innerHTML =
+      `<div class="cdn" style="color:${heatText(pct)}">${d}</div>` +
+      (amt > 0 ? `<div class="cdots">${dots}</div><div class="camt" style="color:${heatText(pct)}">${amt.toFixed(0)}€</div>` : '');
+
+    el.onclick = () => showCalDay(d, items, monthName);
+    grid.appendChild(el);
+  }
+
+  // Legenda com categorias presentes no mês
+  const catsPresent = [...new Set(monthData.map(r => r.category))];
+  document.getElementById('calLegend').innerHTML = catsPresent.map(cat => {
+    const c = getCatColor(cat);
+    return `<div class="cal-leg"><div class="cal-leg-dot" style="background:${c.dot}"></div>${esc(cat)}</div>`;
+  }).join('');
+
+  // Limpar detalhe
+  document.getElementById('calDetail').innerHTML = '<div class="cal-detail-title">Clica num dia para ver as despesas</div>';
+}
+
+function showCalDay(d, items, monthName) {
+  const det = document.getElementById('calDetail');
+  if (items.length === 0) {
+    det.innerHTML = `<div class="cal-detail-title">Dia ${d} ${monthName} — sem despesas</div>`;
+    return;
+  }
+  const total = items.reduce((a,r) => a + parseFloat(r.amount), 0);
+  const rows = items.map(r => {
+    const c = getCatColor(r.category);
+    const payer = r.payer === 'p1' ? cfg.name1 : cfg.name2;
+    return `<div class="cal-det-row">
+      <div style="display:flex;align-items:center;gap:7px;">
+        <span style="display:inline-block;padding:2px 7px;border-radius:4px;font-size:0.7rem;font-weight:600;background:${c.bg};color:${c.text}">${esc(r.category)}</span>
+        <span>${esc(r.description)}</span>
+      </div>
+      <div style="text-align:right;flex-shrink:0;margin-left:8px;">
+        <div style="font-weight:600;font-family:'DM Mono',monospace;">${parseFloat(r.amount).toFixed(2)}€</div>
+        <div style="font-size:0.7rem;color:var(--text-2);">${esc(payer)}</div>
+      </div>
+    </div>`;
+  }).join('');
+  det.innerHTML = `<div class="cal-detail-title">Dia ${d} ${monthName} · ${total.toFixed(2)}€</div>${rows}`;
 }
 
 // ── INIT ──────────────────────────────────────────────────────────────────
